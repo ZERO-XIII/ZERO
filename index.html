@@ -1,29 +1,31 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZERO GAMES</title>
 <style>
-body{margin:0;background:#0a0a0a;color:#0f0;font-family:monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;overflow:hidden}
-#game{border:2px solid #0f0;width:320px;height:480px;position:relative;background:#111;overflow:hidden}
-#player{width:30px;height:30px;background:#0f0;position:absolute;bottom:20px;left:145px;border-radius:4px;box-shadow:0 0 10px #0f0}
-.enemy{width:30px;height:30px;background:#f00;position:absolute;top:0;border-radius:4px;box-shadow:0 0 10px #f00}
-#score{font-size:24px;margin:10px}
-#over{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#000;border:2px solid #0f0;padding:20px;text-align:center;z-index:10}
-button{background:#0f0;border:none;padding:10px 20px;font-weight:bold;cursor:pointer;margin-top:10px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050505;color:#00ff00;font-family:Courier;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh}
+h1{letter-spacing:5px;text-shadow:0 0 10px #0f0}
+#game{width:90vw;max-width:340px;height:500px;border:3px solid #0f0;position:relative;background:#0a0a0a;overflow:hidden;margin:10px 0;touch-action:none}
+#player{width:32px;height:32px;background:#0f0;position:absolute;bottom:15px;left:154px;box-shadow:0 0 15px #0f0;border-radius:3px}
+.enemy{width:28px;height:28px;background:red;position:absolute;border-radius:3px;box-shadow:0 0 10px red}
+#ui{font-size:18px}
+#over{position:absolute;inset:0;background:rgba(0,0,0,0.9);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:9}
+#over button{margin-top:15px;background:#0f0;border:none;padding:12px 25px;font-size:18px;font-weight:bold}
 </style>
 </head>
 <body>
-<div id="score">SCORE: 0 | BEST: 0</div>
-<div id="game">
-<div id="player"></div>
-<div id="over"><h2>GAME OVER</h2><p id="final"></p><button onclick="reset()">RETRY</button></div>
-</div>
-<p>حرك باصبعك او بالماوس ◀️ ▶️</p>
+<h1>ZERO</h1>
+<div id="ui">SCORE: <span id="s">0</span> | BEST: <span id="b">0</span></div>
+<div id="game"><div id="player"></div><div id="over"><h2>DEAD</h2><p id="msg"></p><button onclick="location.reload()">RETRY</button></div></div>
+<p style="font-size:12px;opacity:0.6">حرك صبعك داخل المربع</p>
 <script>
-let player=document.getElementById('player'), game=document.getElementById('game'), scoreEl=document.getElementById('score'), over=document.getElementById('over'), final=document.getElementById('final');
-let x=145, score=0, best=localStorage.getItem('zeroBest')||0, enemies=[], speed=2, alive=true;
-function move(e){let rect=game.getBoundingClientRect(); let cx=(e.touches?e.touches[0].clientX:e.clientX)-rect.left; x=Math.max(0,Math.min(290,cx-15)); player.style.left=x+'px';}
-game.addEventListener('mousemove',move); game.addEventListener('touchmove',move,{passive:false});
-function spawn(){if(!alive)return; let d
+const game=document.getElementById('game'),player=document.getElementById('player'),over=document.getElementById('over'),sEl=document.getElementById('s'),bEl=document.getElementById('b'),msg=document.getElementById('msg');
+let px=154,score=0,best=localStorage.getItem('zb')||0,alive=true,speed=2.5;
+bEl.textContent=best;
+function setX(clientX){let r=game.getBoundingClientRect(); px=Math.max(0,Math.min(r.width-32,clientX-r.left-16)); player.style.left=px+'px';}
+game.addEventListener('touchmove',e=>{e.preventDefault(); setX(e.touches[0].clientX)},{passive:false});
+game.addEventListener('mousemove',e=>setX(e.clientX));
+function addEnemy(){if(!alive)return; let el=document.createElement('div'); el.className='enemy'; el.style.left=Math.random()*(game.clientWidth-28)+'px'; el.style.top='-30px'; game.appendChild(el); let y=-30; let id=setInterval(()=>{if(!alive){clearInterval(id); el.remove(); return
