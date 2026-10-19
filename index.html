@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لعبة نطاط - ZERO</title>
+<style>
+  body { margin:0; background:#111; color:white; font-family: sans-serif; text-align:center; overflow:hidden; }
+  #game { width:100%; max-width:400px; height:500px; background:#222; margin:20px auto; position:relative; border:2px solid #444; overflow:hidden; }
+  #player { width:40px; height:40px; background:#00ff88; position:absolute; bottom:50px; left:50px; border-radius:8px; }
+  .obstacle { width:30px; height:50px; background:#ff4444; position:absolute; bottom:50px; right:0; border-radius:4px; }
+  #ground { width:100%; height:50px; background:#333; position:absolute; bottom:0; }
+  #score { font-size:24px; margin-top:10px; }
+</style>
+</head>
+<body>
+<h2>نطاط ZERO-XIII</h2>
+<div id="score">النقاط: 0</div>
+<div id="game">
+  <div id="player"></div>
+  <div id="ground"></div>
+</div>
+<p>دوس على الشاشة حتى تنط</p>
+
+<script>
+let player = document.getElementById('player');
+let game = document.getElementById('game');
+let scoreEl = document.getElementById('score');
+let jumping = false;
+let score = 0;
+let gameOver = false;
+
+function jump(){
+  if(jumping || gameOver) return;
+  jumping = true;
+  let up = 0;
+  let jumpInterval = setInterval(()=>{
+    if(up >= 120){
+      clearInterval(jumpInterval);
+      let down = setInterval(()=>{
+        if(up <= 0){
+          clearInterval(down);
+          jumping = false;
+        }
+        up -= 10;
+        player.style.bottom = (50 + up) + 'px';
+      },20);
+    }
+    up += 10;
+    player.style.bottom = (50 + up) + 'px';
+  },20);
+}
+
+function createObstacle(){
+  if(gameOver) return;
+  let obs = document.createElement('div');
+  obs.classList.add('obstacle');
+  obs.style.right = '0px';
+  game.appendChild(obs);
+  let pos = 0;
+  let move = setInterval(()=>{
+    if(pos > 400){
+      clearInterval(move);
+      obs.remove();
+      score++;
+      scoreEl.innerText = 'النقاط: ' + score;
+    }
+    if(pos > 300 && pos < 340 && parseInt(player.style.bottom) < 90){
+      gameOver = true;
+      alert('Game Over! نقاطك: ' + score);
+      location.reload();
+    }
+    pos += 5;
+    obs.style.right = pos + 'px';
+  },20);
+  setTimeout(createObstacle, 1500 + Math.random()*1000);
+}
+
+document.addEventListener('click', jump);
+document.addEventListener('touchstart', jump);
+createObstacle();
+player.style.bottom = '50px';
+</script>
+</body>
+</html>
